@@ -61,7 +61,7 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
         raton = new Raton(posrX, posrY, Toolkit.getDefaultToolkit().getImage(rURL));
         raton.setPosX(raton.getPosX() - raton.getAncho());
         raton.setPosY(raton.getPosY() - raton.getAlto());
-        setBackground(Color.yellow);
+        setBackground(Color.black);
         addKeyListener(this);
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -121,24 +121,6 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
      */
     public void actualiza() {
         //Dependiendo de la direccion del elefante es hacia donde se mueve.
-        switch (direccion) {
-            case 1: {
-                dumbo.setPosY(dumbo.getPosY() - 1);
-                break;    //se mueve hacia arriba
-            }
-            case 2: {
-                dumbo.setPosY(dumbo.getPosY() + 1);
-                break;    //se mueve hacia abajo
-            }
-            case 3: {
-                dumbo.setPosX(dumbo.getPosX() - 1);
-                break;    //se mueve hacia izquierda
-            }
-            case 4: {
-                dumbo.setPosX(dumbo.getPosX() + 1);
-                break;    //se mueve hacia derecha	
-            }
-        }
 
         //Acutalizo la posicion del raton
         if (dumbo.getPosX() > raton.getPosX()) {
@@ -326,7 +308,7 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
 
     @Override
     public void mouseClicked(MouseEvent me) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     @Override
