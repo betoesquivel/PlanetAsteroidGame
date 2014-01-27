@@ -18,6 +18,7 @@ class Draggable extends Rectangle{
     boolean rollover = false; // Is the mouse over the ellipse?
 
     int posX, posY, width, height;          // Location and size
+    int mx, my;     //mouse coordinates
     int offsetX, offsetY; // Mouseclick offset
     Rectangle mRectangle;
     
@@ -33,6 +34,23 @@ class Draggable extends Rectangle{
         this.offsetY = 0;
     }
 
+    public int getMx() {
+        return mx;
+    }
+
+    public void setMx(int mx) {
+        this.mx = mx;
+    }
+
+    public int getMy() {
+        return my;
+    }
+
+    public void setMy(int my) {
+        this.my = my;
+    }
+
+    
     public boolean isDragging() {
         return dragging;
     }
@@ -98,7 +116,7 @@ class Draggable extends Rectangle{
     }
 
     
-    void startDragging(int mx, int my) {
+    void startDragging() {
         dragging = true;
         // If so, keep track of relative location of click to corner of rectangle
         offsetX = posX - mx;
@@ -111,9 +129,9 @@ class Draggable extends Rectangle{
      * @param mx
      * @param my 
      */
-    void isClicked(int mx, int my) {
+    void isClicked() {
         if (mRectangle.contains(mx,my)) {
-            startDragging(mx, my);
+            startDragging();
         }
     }
 
@@ -123,7 +141,7 @@ class Draggable extends Rectangle{
     }
 
     // Drag the rectangle
-    void drag(int mx, int my) {
+    void drag() {
         if (dragging) {
             posX = mx + offsetX;
             posY = my + offsetY;

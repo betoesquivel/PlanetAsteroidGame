@@ -3,53 +3,71 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package huyendodelasteroide;
 
 import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
+import javax.swing.ImageIcon;
 
 /**
  *
  * @author ppesq
  */
-public class HuyendoDelAsteroide extends Applet implements Runnable, MouseListener{
-   /**
+public class HuyendoDelAsteroide extends Applet implements Runnable, MouseListener {
+
+    //Characters and important areas of the game
+    private Planet jupiter;
+    private Asteroid asteroid;
+    private AudioClip sound;
+    private boolean collided;
+    private Image dbImage; 
+    private Image dbg; 
+
+    //mouse coordinates
+    private int mouse_x;
+    private int mouse_y;
+
+    /**
      * Metodo <I>init</I> sobrescrito de la clase <code>Applet</code>.<P>
      * En este metodo se inizializan las variables o se crean los objetos a
      * usarse en el <code>Applet</code> y se definen funcionalidades.
      */
     public void init() {
-        direccion = 4;
 
         this.setSize(500, 500);
 
         int posX = (int) (Math.random() * (getWidth() / 4));    // posicion en x es un cuarto del applet
         int posY = (int) (Math.random() * (getHeight() / 4));    // posicion en y es un cuarto del applet
-        URL eURL = this.getClass().getResource("/images/elefante.gif");
-        dumbo = new Elefante(posX, posY, Toolkit.getDefaultToolkit().getImage(eURL));
+
+        URL eURL = this.getClass().getResource("/images/jupiter.gif");
+        jupiter = new Planet(posX, posY, eURL, eURL);
+
         int posrX = (int) (Math.random() * (getWidth() / 4)) + getWidth() / 2;    //posision x es tres cuartos del applet
         int posrY = (int) (Math.random() * (getHeight() / 4)) + getHeight() / 2;    //posision y es tres cuartos del applet
-        URL rURL = this.getClass().getResource("/images/mouse.gif");
-        raton = new Raton(posrX, posrY, Toolkit.getDefaultToolkit().getImage(rURL));
-        raton.setPosX(raton.getPosX() - raton.getAncho());
-        raton.setPosY(raton.getPosY() - raton.getAlto());
-        setBackground(Color.yellow);
-        addKeyListener(this);
+        URL rURL = this.getClass().getResource("/images/asteroid.gif");
+        asteroid = new Asteroid(posrX, posrY, 2, rURL, rURL);
+        asteroid.setPosX(asteroid.getPosX() - asteroid.getWidth());
+        asteroid.setPosY(asteroid.getPosY() - asteroid.getHeight());
+
+        setBackground(Color.black);
+
         addMouseListener(this);
-        //Se cargan los sonidos.
-        URL eaURL = this.getClass().getResource("/sounds/elephant.wav");
-        sonido = getAudioClip(eaURL);
-        URL raURL = this.getClass().getResource("/sounds/mice.wav");
-        rat = getAudioClip(raURL);
-        URL baURL = this.getClass().getResource("/sounds/Explosion.wav");
-        bomb = getAudioClip(baURL);
+        //Se carga el sonido
+        URL eaURL = this.getClass().getResource("/sounds/8-bit-explosion.wav");
+        sound = getAudioClip(eaURL);
+
+        //the explosion animation
+        URL cURL = this.getClass().getResource("/images/explosion_bien.gif");
+        ImageIcon explosion = new ImageIcon(cURL);
+        collided = false;
     }
 
     /**
@@ -88,111 +106,55 @@ public class HuyendoDelAsteroide extends Applet implements Runnable, MouseListen
     }
 
     /**
-     * Metodo usado para actualizar la posicion de objetos elefante y raton.
+     * Metodo usado para actualizar la posicion de objetos elefante y asteroid.
      *
      */
     public void updateCharacters() {
-        if (mouse_clicked) {
-            dumbo.setPosX(new_pos_x);
-            dumbo.setPosY(new_pos_y);
-            mouse_clicked = false;
-        }
-        //Dependiendo de la direccion del elefante es hacia donde se mueve.
-        switch (direccion) {
-            case 1: {
-                dumbo.setPosY(dumbo.getPosY() - 1);
-                break;    //se mueve hacia arriba
-            }
-            case 2: {
-                dumbo.setPosY(dumbo.getPosY() + 1);
-                break;    //se mueve hacia abajo
-            }
-            case 3: {
-                dumbo.setPosX(dumbo.getPosX() - 1);
-                break;    //se mueve hacia izquierda
-            }
-            case 4: {
-                dumbo.setPosX(dumbo.getPosX() + 1);
-                break;    //se mueve hacia derecha	
-            }
-        }
 
-        // genero un numero al azar en incx e incy de -5 a 5
-        incX = ((int) (Math.random() * (MAX - MIN))) + MIN;
-        incY = ((int) (Math.random() * (MAX - MIN))) + MIN;
-
-        //Acutalizo la posicion del raton
-        //raton.setPosX(raton.getPosX() + incX);
-        //raton.setPosY(raton.getPosY() + incY);
-        raton.follow(dumbo);
+        jupiter.updatePlanet();
+        asteroid.updateAsteroid(jupiter);
 
     }
 
     /**
-     * Metodo usado para checar las colisiones del objeto elefante y raton con
-     * las orillas del <code>Applet</code>.
+     * Metodo usado para checar las colisiones del objeto elefante y asteroid
+     * con las orillas del <code>Applet</code>.
      */
     public void checkCollision() {
-        //Colision del elefante con el Applet dependiendo a donde se mueve.
-        switch (direccion) {
-            case 1: { //se mueve hacia arriba con la flecha arriba.
-                if (dumbo.getPosY() < 0) {
-                    direccion = 2;
-                    sonido.play();
-                }
-                break;
-            }
-            case 2: { //se mueve hacia abajo con la flecha abajo.
-                if (dumbo.getPosY() + dumbo.getAlto() > getHeight()) {
-                    direccion = 1;
-                    sonido.play();
-                }
-                break;
-            }
-            case 3: { //se mueve hacia izquierda con la flecha izquierda.
-                if (dumbo.getPosX() < 0) {
-                    direccion = 4;
-                    sonido.play();
-                }
-                break;
-            }
-            case 4: { //se mueve hacia derecha con la flecha derecha.
-                if (dumbo.getPosX() + dumbo.getAncho() > getWidth()) {
-                    direccion = 3;
-                    sonido.play();
-                }
-                break;
-            }
-        }
-
-        //checa colision con el applet
-        if (raton.getPosX() + raton.getAncho() > getWidth()) {
-            raton.setPosX(raton.getPosX() - incX);
-            rat.play();
-        }
-        if (raton.getPosX() < 0) {
-            raton.setPosX(raton.getPosX() - incX);
-            rat.play();
-        }
-        if (raton.getPosY() + raton.getAlto() > getHeight()) {
-            raton.setPosY(raton.getPosY() - incY);
-            rat.play();
-        }
-        if (raton.getPosY() < 0) {
-            raton.setPosY(raton.getPosY() - incY);
-            rat.play();
-        }
-
         //Colision entre objetos
-        if (dumbo.intersecta(raton)) {
-            bomb.play();    //sonido al colisionar
-            //El elefante se mueve al azar en la mitad izquierda del applet.
-            dumbo.setPosX((int) (Math.random() * (getWidth() / 2 - dumbo.getAncho())));
-            dumbo.setPosY((int) (Math.random() * (getHeight() / 2 - dumbo.getAlto())));
-            //El raton se mueve al azar en la mitad derecha del appler.
-            raton.setPosX((int) (Math.random() * getWidth() / 2) + getWidth() / 2 - raton.getAncho());
-            raton.setPosY((int) (Math.random() * getHeight() / 2) + getHeight() / 2 - raton.getAlto());
-            raton.accelerate();
+        if (jupiter.isIn_collision() && asteroid.isIn_collision()) {
+            if (jupiter.getCollision_cycles_counter() == 0) {
+
+            } else {
+                jupiter.decreaseCollisionCyclesCounter();
+                asteroid.decreaseCollisionCyclesCounter();
+            }
+        } else {
+
+        }
+        if (jupiter.intersectsAsteroid(asteroid)) {
+            if (jupiter.getCollision_cycles_counter() == jupiter.getDEFAULT_COLLISION_CYCLES()) {
+                sound.play();    //sonido al colisionar
+                jupiter.collide();
+                asteroid.collide();
+                jupiter.stopDragging();
+            } else {
+                if (jupiter.getCollision_cycles_counter() > 0) {
+                    jupiter.decreaseCollisionCyclesCounter();
+                    asteroid.decreaseCollisionCyclesCounter();
+                } else {
+                    jupiter.stopColliding();
+                    asteroid.stopColliding();
+                    //El planet se mueve al azar en la mitad izquierda del applet.
+                    jupiter.setPosX((int) (Math.random() * (getWidth() / 2 - jupiter.getWidth())));
+                    jupiter.setPosY((int) (Math.random() * (getHeight() / 2 - jupiter.getHeight())));
+                    //El asteroid se mueve al azar en la mitad derecha del appler.
+                    asteroid.setPosX((int) (Math.random() * getWidth() / 2) + getWidth() / 2 - asteroid.getWidth());
+                    asteroid.setPosY((int) (Math.random() * getHeight() / 2) + getHeight() / 2 - asteroid.getHeight());
+                    asteroid.accelerate();
+                }
+            }
+
         }
     }
 
@@ -231,10 +193,10 @@ public class HuyendoDelAsteroide extends Applet implements Runnable, MouseListen
      * @param g es el <code>objeto grafico</code> usado para dibujar.
      */
     public void paint(Graphics g) {
-        if (dumbo != null && raton != null) {
+        if (dumbo != null && asteroid != null) {
             //Dibuja la imagen en la posicion actualizada
             g.drawImage(dumbo.getImagenI(), dumbo.getPosX(), dumbo.getPosY(), this);
-            g.drawImage(raton.getImagenI(), raton.getPosX(), raton.getPosY(), this);
+            g.drawImage(asteroid.getImagenI(), asteroid.getPosX(), asteroid.getPosY(), this);
 
         } else {
             //Da un mensaje mientras se carga el dibujo	
@@ -272,5 +234,4 @@ public class HuyendoDelAsteroide extends Applet implements Runnable, MouseListen
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
 }
