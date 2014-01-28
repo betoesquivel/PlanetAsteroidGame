@@ -18,4 +18,6 @@ public class Asteroide extends CuerpoCeleste {
 	public Asteroide(int posX,int posY,Image image){
 		super(posX,posY,image);
 	}
+        
+        
 }

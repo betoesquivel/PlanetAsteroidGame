@@ -13,6 +13,7 @@ import java.applet.AudioClip;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -20,8 +21,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
+import javax.swing.ImageIcon;
 
-public class Inteligencia extends Applet implements Runnable, KeyListener, MouseListener, MouseMotionListener {
+public class Inteligencia extends Applet implements Runnable, MouseListener, MouseMotionListener {
 
     private static final long serialVersionUID = 1L;
     // Se declaran las variables.
@@ -33,13 +35,13 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
     private final int MAX = 6;    //Rango maximo al generar un numero al azar.
     private Image dbImage;    // Imagen a proyectar
     private Image gameover;    //Imagen a desplegar al acabar el juego.	 
+    private Image live_image;        //Imagen a desplegar que representa una vida.
+    private ImageIcon lives;
     private Graphics dbg;	// Objeto grafico
-    private AudioClip sonido;    // Objeto AudioClip
-    private AudioClip rat;    // Objeto AudioClip
     private AudioClip bomb;    //Objeto AudioClip 
-    private Planeta dumbo;    // Objeto de la clase Planeta
-    private Asteroide raton;    //Objeto de la clase Asteroide
-
+    private Planeta jupiter;    // Objeto de la clase Planeta
+    private Asteroide asteroid;    //Objeto de la clase Asteroide
+    private int speed; //contains the speed of the asteroid
     private boolean object_clicked;
 
     /**
@@ -49,31 +51,30 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
      */
     public void init() {
         vidas = 3;    // Le asignamos un valor inicial a las vidas
-        direccion = 4;    // Direccion hacia la derecha
-        this.setSize(500, 500);
+        this.setSize(600, 350);
         int posX = (int) (Math.random() * (getWidth() / 4));    // posicion en x es un cuarto del applet
         int posY = (int) (Math.random() * (getHeight() / 4));    // posicion en y es un cuarto del applet
         URL eURL = this.getClass().getResource("/images/jupiter.gif");
-        dumbo = new Planeta(posX, posY, Toolkit.getDefaultToolkit().getImage(eURL));
+        jupiter = new Planeta(posX, posY, Toolkit.getDefaultToolkit().getImage(eURL));
         int posrX = (int) (Math.random() * (getWidth() / 4)) + getWidth() / 2;    //posision x es tres cuartos del applet
         int posrY = (int) (Math.random() * (getHeight() / 4)) + getHeight() / 2;    //posision y es tres cuartos del applet
         URL rURL = this.getClass().getResource("/images/asteroid.gif");
-        raton = new Asteroide(posrX, posrY, Toolkit.getDefaultToolkit().getImage(rURL));
-        raton.setPosX(raton.getPosX() - raton.getAncho());
-        raton.setPosY(raton.getPosY() - raton.getAlto());
+        asteroid = new Asteroide(posrX, posrY, Toolkit.getDefaultToolkit().getImage(rURL));
+        asteroid.setPosX(asteroid.getPosX() - asteroid.getAncho());
+        asteroid.setPosY(asteroid.getPosY() - asteroid.getAlto());
+        speed = 1;
         setBackground(Color.black);
-        addKeyListener(this);
+
         addMouseListener(this);
         addMouseMotionListener(this);
         //Se cargan los sonidos.
-        URL eaURL = this.getClass().getResource("elephant.wav");
-        sonido = getAudioClip(eaURL);
-        URL raURL = this.getClass().getResource("mice.wav");
-        rat = getAudioClip(raURL);
-        URL baURL = this.getClass().getResource("Explosion.wav");
+        URL baURL = this.getClass().getResource("/sounds/8-bit-explosion.wav");
         bomb = getAudioClip(baURL);
-        URL goURL = this.getClass().getResource("gameover.jpg");
+        URL goURL = this.getClass().getResource("/images/gameover_1.jpg");
         gameover = Toolkit.getDefaultToolkit().getImage(goURL);
+        URL livesURL = this.getClass().getResource("/images/whiterectangle.gif");
+        live_image = Toolkit.getDefaultToolkit().getImage(livesURL);
+        lives = new ImageIcon(live_image);
         object_clicked = false;
     }
 
@@ -116,97 +117,51 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
     }
 
     /**
-     * Metodo usado para actualizar la posicion de objetos elefante y raton.
+     * Metodo usado para actualizar la posicion de objetos elefante y asteroid.
      *
      */
     public void actualiza() {
         //Dependiendo de la direccion del elefante es hacia donde se mueve.
 
-        //Acutalizo la posicion del raton
-        if (dumbo.getPosX() > raton.getPosX()) {
-            incX = 1;
-            raton.setPosX(raton.getPosX() + incX);
+        //Acutalizo la posicion del asteroid
+        if (jupiter.getPosX() > asteroid.getPosX()) {
+            incX = speed;
+            asteroid.setPosX(asteroid.getPosX() + incX);
         } else {
-            incX = -1;
-            raton.setPosX(raton.getPosX() + incX);
+            incX = -1*speed;
+            asteroid.setPosX(asteroid.getPosX() + incX);
         }
 
-        if (dumbo.getPosY() > raton.getPosY()) {
-            incY = 1;
-            raton.setPosY(raton.getPosY() + incY);
+        if (jupiter.getPosY() > asteroid.getPosY()) {
+            incY = speed;
+            asteroid.setPosY(asteroid.getPosY() + incY);
         } else {
-            incY = -1;
-            raton.setPosY(raton.getPosY() + incY);
+            incY = -1*speed;
+            asteroid.setPosY(asteroid.getPosY() + incY);
         }
 
     }
 
     /**
-     * Metodo usado para checar las colisiones del objeto elefante y raton con
-     * las orillas del <code>Applet</code>.
+     * Metodo usado para checar las colisiones del objeto elefante y asteroid
+     * con las orillas del <code>Applet</code>.
      */
     public void checaColision() {
-        //Colision del elefante con el Applet dependiendo a donde se mueve.
-        switch (direccion) {
-            case 1: { //se mueve hacia arriba con la flecha arriba.
-                if (dumbo.getPosY() < 0) {
-                    direccion = 2;
-                    sonido.play();
-                }
-                break;
-            }
-            case 2: { //se mueve hacia abajo con la flecha abajo.
-                if (dumbo.getPosY() + dumbo.getAlto() > getHeight()) {
-                    direccion = 1;
-                    sonido.play();
-                }
-                break;
-            }
-            case 3: { //se mueve hacia izquierda con la flecha izquierda.
-                if (dumbo.getPosX() < 0) {
-                    direccion = 4;
-                    sonido.play();
-                }
-                break;
-            }
-            case 4: { //se mueve hacia derecha con la flecha derecha.
-                if (dumbo.getPosX() + dumbo.getAncho() > getWidth()) {
-                    direccion = 3;
-                    sonido.play();
-                }
-                break;
-            }
-        }
 
-        //checa colision con el applet
-        if (raton.getPosX() + raton.getAncho() > getWidth()) {
-            raton.setPosX(raton.getPosX() - incX);
-            rat.play();
-        }
-        if (raton.getPosX() < 0) {
-            raton.setPosX(raton.getPosX() - incX);
-            rat.play();
-        }
-        if (raton.getPosY() + raton.getAlto() > getHeight()) {
-            raton.setPosY(raton.getPosY() - incY);
-            rat.play();
-        }
-        if (raton.getPosY() < 0) {
-            raton.setPosY(raton.getPosY() - incY);
-            rat.play();
-        }
-
-        //Colision entre objetos
-        if (dumbo.intersecta(raton)) {
+        if (jupiter.intersecta(asteroid)) {
             bomb.play();    //sonido al colisionar
             //El elefante se mueve al azar en la mitad izquierda del applet.
-            dumbo.setPosX((int) (Math.random() * (getWidth() / 2 - dumbo.getAncho())));
-            dumbo.setPosY((int) (Math.random() * (getHeight() / 2 - dumbo.getAlto())));
-            //El raton se mueve al azar en la mitad derecha del appler.
-            raton.setPosX((int) (Math.random() * getWidth() / 2) + getWidth() / 2 - raton.getAncho());
-            raton.setPosY((int) (Math.random() * getHeight() / 2) + getHeight() / 2 - raton.getAlto());
+            jupiter.setPosX((int) (Math.random() * (getWidth() / 2 - jupiter.getAncho())));
+            jupiter.setPosY((int) (Math.random() * (getHeight() / 2 - jupiter.getAlto())));
+            //El asteroid se mueve al azar en la mitad derecha del appler.
+            asteroid.setPosX((int) (Math.random() * getWidth() / 2) + getWidth() / 2 - asteroid.getAncho());
+            asteroid.setPosY((int) (Math.random() * getHeight() / 2) + getHeight() / 2 - asteroid.getAlto());
+
+            object_clicked = false;
+
             if (vidas > 0) {
                 vidas--;
+                speed++;
             }
         }
     }
@@ -238,51 +193,6 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
     }
 
     /**
-     * Metodo <I>keyPressed</I> sobrescrito de la interface
-     * <code>KeyListener</code>.<P>
-     * En este metodo maneja el evento que se genera al presionar cualquier la
-     * tecla.
-     *
-     * @param e es el <code>evento</code> generado al presionar las teclas.
-     */
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_UP) {    //Presiono flecha arriba
-            direccion = 1;
-        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {    //Presiono flecha abajo
-            direccion = 2;
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {    //Presiono flecha izquierda
-            direccion = 3;
-        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {    //Presiono flecha derecha
-            direccion = 4;
-        }
-    }
-
-    /**
-     * Metodo <I>keyTyped</I> sobrescrito de la interface
-     * <code>KeyListener</code>.<P>
-     * En este metodo maneja el evento que se genera al presionar una tecla que
-     * no es de accion.
-     *
-     * @param e es el <code>evento</code> que se genera en al presionar las
-     * teclas.
-     */
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    /**
-     * Metodo <I>keyReleased</I> sobrescrito de la interface
-     * <code>KeyListener</code>.<P>
-     * En este metodo maneja el evento que se genera al soltar la tecla
-     * presionada.
-     *
-     * @param e es el <code>evento</code> que se genera en al soltar las teclas.
-     */
-    public void keyReleased(KeyEvent e) {
-
-    }
-
-    /**
      * Metodo <I>paint</I> sobrescrito de la clase <code>Applet</code>, heredado
      * de la clase Container.<P>
      * En este metodo se dibuja la imagen con la posicion actualizada, ademas
@@ -292,11 +202,19 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
      */
     public void paint(Graphics g) {
         if (vidas > 0) {
-            if (dumbo != null && raton != null) {
+            if (jupiter != null && asteroid != null) {
                 //Dibuja la imagen en la posicion actualizada
-                g.drawImage(dumbo.getImagenI(), dumbo.getPosX(), dumbo.getPosY(), this);
-                g.drawImage(raton.getImagenI(), raton.getPosX(), raton.getPosY(), this);
+                g.drawImage(jupiter.getImagenI(), jupiter.getPosX(), jupiter.getPosY(), this);
+                g.drawImage(asteroid.getImagenI(), asteroid.getPosX(), asteroid.getPosY(), this);
 
+                int text_length = 70;
+                g.setColor(Color.WHITE);
+                Font newf = g.getFont().deriveFont(Font.BOLD);
+                g.setFont(newf);
+                g.drawString("vidas:", 15, 15);
+                for (int i = 0; i < vidas; i++) {
+                    g.drawImage(lives.getImage(), text_length + i * lives.getIconWidth(), 0, this);
+                }
             } else {
                 //Da un mensaje mientras se carga el dibujo	
                 g.drawString("No se cargo la imagen..", 20, 20);
@@ -308,16 +226,16 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
 
     @Override
     public void mouseClicked(MouseEvent me) {
-        
+
     }
 
     @Override
     public void mousePressed(MouseEvent me) {
-        dumbo.setMx(me.getX());
-        dumbo.setMy(me.getY());
-        object_clicked = dumbo.animal_is_clicked();
+        jupiter.setMx(me.getX());
+        jupiter.setMy(me.getY());
+        object_clicked = jupiter.animal_is_clicked();
         if (object_clicked) {
-            dumbo.calculateOffset();
+            jupiter.calculateOffset();
         }
         me.consume();
     }
@@ -341,7 +259,7 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
     @Override
     public void mouseDragged(MouseEvent me) {
         if (object_clicked) {
-            dumbo.drag(me);
+            jupiter.drag(me);
         }
         me.consume();
     }
