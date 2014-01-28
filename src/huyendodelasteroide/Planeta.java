@@ -9,20 +9,20 @@ package huyendodelasteroide;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
 
-public class Elefante extends Animal {
+public class Planeta extends CuerpoCeleste {
 
     int x_offset, y_offset; //contains difference between mouse coordinates and object.
     int mx, my;
 
     /**
      * Metodo constructor que hereda los atributos de la clase
-     * <code>Animal</code>.
+     * <code>CuerpoCeleste</code>.
      *
      * @param posX es la <code>posiscion en x</code> del objeto elefante.
      * @param posY es el <code>posiscion en y</code> del objeto elefante.
      * @param image es la <code>imagen</code> del objeto elefante.
      */
-    public Elefante(int posX, int posY, Image image) {
+    public Planeta(int posX, int posY, Image image) {
         super(posX, posY, image);
     }
 

@@ -9,7 +9,7 @@ import javax.swing.ImageIcon;
 import java.awt.Image;
 import java.awt.Rectangle;
 
-public class Animal {
+public class CuerpoCeleste {
 	
 	private int posX;    //posicion en x.       
 	private int posY;	//posicion en y.
@@ -21,7 +21,7 @@ public class Animal {
 	 * @param posY es la <code>posicion en y</code> del objeto.
 	 * @param image es la <code>imagen</code> del objeto.
 	 */
-	public Animal(int posX, int posY ,Image image) {
+	public CuerpoCeleste(int posX, int posY ,Image image) {
 		this.posX=posX;
 		this.posY=posY;
 		icono = new ImageIcon(image);
@@ -109,12 +109,12 @@ public class Animal {
 	}
 	
 	/**
-	 * Checa si el objeto <code>Animal</code> intersecta a otro <code>Animal</code>
+	 * Checa si el objeto <code>CuerpoCeleste</code> intersecta a otro <code>CuerpoCeleste</code>
 	 *
 	 * @return un valor boleano <code>true</code> si lo intersecta <code>false</code>
 	 * en caso contrario
 	 */
-	public boolean intersecta(Animal obj){
+	public boolean intersecta(CuerpoCeleste obj){
 		return getPerimetro().intersects(obj.getPerimetro());
 	}
 	

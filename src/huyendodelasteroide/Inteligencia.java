@@ -37,8 +37,8 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
     private AudioClip sonido;    // Objeto AudioClip
     private AudioClip rat;    // Objeto AudioClip
     private AudioClip bomb;    //Objeto AudioClip 
-    private Elefante dumbo;    // Objeto de la clase Elefante
-    private Raton raton;    //Objeto de la clase Raton
+    private Planeta dumbo;    // Objeto de la clase Planeta
+    private Asteroide raton;    //Objeto de la clase Asteroide
 
     private boolean object_clicked;
 
@@ -54,11 +54,11 @@ public class Inteligencia extends Applet implements Runnable, KeyListener, Mouse
         int posX = (int) (Math.random() * (getWidth() / 4));    // posicion en x es un cuarto del applet
         int posY = (int) (Math.random() * (getHeight() / 4));    // posicion en y es un cuarto del applet
         URL eURL = this.getClass().getResource("/images/jupiter.gif");
-        dumbo = new Elefante(posX, posY, Toolkit.getDefaultToolkit().getImage(eURL));
+        dumbo = new Planeta(posX, posY, Toolkit.getDefaultToolkit().getImage(eURL));
         int posrX = (int) (Math.random() * (getWidth() / 4)) + getWidth() / 2;    //posision x es tres cuartos del applet
         int posrY = (int) (Math.random() * (getHeight() / 4)) + getHeight() / 2;    //posision y es tres cuartos del applet
         URL rURL = this.getClass().getResource("/images/asteroid.gif");
-        raton = new Raton(posrX, posrY, Toolkit.getDefaultToolkit().getImage(rURL));
+        raton = new Asteroide(posrX, posrY, Toolkit.getDefaultToolkit().getImage(rURL));
         raton.setPosX(raton.getPosX() - raton.getAncho());
         raton.setPosY(raton.getPosY() - raton.getAlto());
         setBackground(Color.black);
