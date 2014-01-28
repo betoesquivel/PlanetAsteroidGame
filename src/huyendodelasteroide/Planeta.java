@@ -58,21 +58,22 @@ public class Planeta extends CuerpoCeleste {
         this.my = my;
     }
 
-    public void calculateOffset() {
-        x_offset = getPosX() - mx;
-        y_offset = getPosY() - my;
-    }
 
     /**
-     * Checks if the animals coordinates
+     * Checks if the object has been clicked.
      *
      * @param obj
      * @return
      */
-    public boolean animal_is_clicked() {
+    public boolean planet_is_clicked() {
         return getPerimetro().contains(mx, my);
     }
 
+    /**
+     * Method that changes the position of planet depending on mouse moven
+     * if dragged.
+     * @param e contains the mouse event dragged.
+     */
     public void drag(MouseEvent e) {
         setPosX(getPosX() + (e.getX() - mx));
         setPosY(getPosY() + (e.getY() - my));

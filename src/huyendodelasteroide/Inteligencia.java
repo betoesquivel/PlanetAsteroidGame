@@ -229,17 +229,26 @@ public class Inteligencia extends Applet implements Runnable, MouseListener, Mou
 
     }
 
+    /**
+     * <I>mousePressed</I>
+     * Changes the state of the object to clicked when it is clicked
+     * to begin dragging.
+     * @param me contains the mouse event captured.
+     */
     @Override
     public void mousePressed(MouseEvent me) {
         jupiter.setMx(me.getX());
         jupiter.setMy(me.getY());
-        object_clicked = jupiter.animal_is_clicked();
-        if (object_clicked) {
-            jupiter.calculateOffset();
-        }
+        object_clicked = jupiter.planet_is_clicked();
+        
         me.consume();
     }
 
+    /**
+     * <I>mouseRealeased</I>
+     * Changes the state of the object to not clicked to stop dragging. 
+     * @param me contains the mouse event captured
+     */
     @Override
     public void mouseReleased(MouseEvent me) {
         object_clicked = false;
@@ -256,6 +265,11 @@ public class Inteligencia extends Applet implements Runnable, MouseListener, Mou
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    /**
+     * Activated when the mouse is dragged
+     * I check if it is in a clicked state so that it can be dragged.
+     * @param me contains the mouse event
+     */
     @Override
     public void mouseDragged(MouseEvent me) {
         if (object_clicked) {
